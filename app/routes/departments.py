@@ -5,7 +5,7 @@ Management of clinical departments and facility wings.
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from database import get_pool
+from app.database import get_pool
 
 router = APIRouter(prefix="/api/departments", tags=["Departments"])
 

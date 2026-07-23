@@ -5,7 +5,7 @@ Manages patient invoices and trigger-enforced payment classification.
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from database import get_pool
+from app.database import get_pool
 
 router = APIRouter(prefix="/api/billing", tags=["Billing"])
 

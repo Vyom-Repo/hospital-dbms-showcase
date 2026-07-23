@@ -5,7 +5,7 @@ Management of patient clinical records, diagnoses, and prescriptions.
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from database import get_pool
+from app.database import get_pool
 
 router = APIRouter(prefix="/api/medical-records", tags=["Medical Records"])
 

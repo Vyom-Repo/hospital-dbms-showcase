@@ -5,7 +5,7 @@ Inpatient bed allocation and patient admission transactions.
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from database import get_pool
+from app.database import get_pool
 
 router = APIRouter(prefix="/api/rooms", tags=["Rooms"])
 

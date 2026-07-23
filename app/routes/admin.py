@@ -4,7 +4,7 @@ Exposes system metrics, view aggregations, and execution plan benchmarks.
 """
 
 from fastapi import APIRouter, HTTPException
-from database import get_pool
+from app.database import get_pool
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
 

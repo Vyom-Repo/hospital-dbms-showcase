@@ -9,15 +9,15 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from database import close_pool, init_pool
-from routes.admin import router as admin_router
-from routes.appointments import router as appointments_router
-from routes.billing import router as billing_router
-from routes.departments import router as departments_router
-from routes.doctors import router as doctors_router
-from routes.medical_records import router as medical_records_router
-from routes.patients import router as patients_router
-from routes.rooms import router as rooms_router
+from app.database import close_pool, init_pool
+from app.routes.admin import router as admin_router
+from app.routes.appointments import router as appointments_router
+from app.routes.billing import router as billing_router
+from app.routes.departments import router as departments_router
+from app.routes.doctors import router as doctors_router
+from app.routes.medical_records import router as medical_records_router
+from app.routes.patients import router as patients_router
+from app.routes.rooms import router as rooms_router
 
 
 @asynccontextmanager

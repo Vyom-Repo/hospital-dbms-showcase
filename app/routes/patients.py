@@ -5,7 +5,7 @@ Patient registration, demographics, and directory lookups.
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-from database import get_pool
+from app.database import get_pool
 
 router = APIRouter(prefix="/api/patients", tags=["Patients"])
 
