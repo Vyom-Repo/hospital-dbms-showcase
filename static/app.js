@@ -1,12 +1,9 @@
 /**
- * Hospital Management System — Frontend Controller
- *
- * A transparent window into the PostgreSQL database.
- * All interactions map directly to API endpoints that execute raw SQL.
+ * Frontend Controller
+ * Interface state management, tab routing, and REST API integration.
  */
 
 const HMS = (() => {
-    // ─── State ──────────────────────────────────────────────────────────
     const state = {
         currentTab: 'dashboard',
         pagination: {

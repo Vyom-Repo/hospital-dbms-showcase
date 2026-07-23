@@ -1,11 +1,9 @@
 """
-Rooms — CRUD + Concurrency-Safe Allocation
-
-Demonstrates SELECT ... FOR UPDATE on room rows to prevent
-two staff members from allocating the last bed simultaneously.
+Rooms Route Handler
+Inpatient bed allocation and patient admission transactions.
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from database import get_pool
 
@@ -15,7 +13,7 @@ router = APIRouter(prefix="/api/rooms", tags=["Rooms"])
 class RoomCreate(BaseModel):
     room_number: str
     department_id: int
-    room_type: str  # general, semi_private, private, icu
+    room_type: str
     total_beds: int
     daily_rate: float
 
@@ -62,8 +60,8 @@ async def list_rooms(
                r.total_beds, r.occupied_beds,
                (r.total_beds - r.occupied_beds) AS available_beds,
                r.daily_rate, dep.name AS department_name
-        FROM rooms r
-        JOIN departments dep ON dep.department_id = r.department_id
+        FROM hms.rooms r
+        JOIN hms.departments dep ON dep.department_id = r.department_id
         {where_clause}
         ORDER BY r.room_number
     """, *params)
@@ -86,22 +84,10 @@ async def create_room(room: RoomCreate):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ADMIT PATIENT — Calls fn_admit_patient stored function
-# Atomic: room allocation + appointment + medical record + billing
-# Uses FOR UPDATE lock on room row inside the function
-# ─────────────────────────────────────────────────────────────────────────────
 @router.post("/admit")
 async def admit_patient(req: AdmitPatient):
     """
-    Atomic patient admission via stored function fn_admit_patient.
-
-    The function internally:
-    1. SELECT room FOR UPDATE → locks room row
-    2. Increments occupied_beds
-    3. Creates appointment, medical record, and billing
-    4. Logs audit event
-    All in a single transaction.
+    Atomic patient admission executing fn_admit_patient with FOR UPDATE bed locking.
     """
     pool = get_pool()
     async with pool.acquire() as conn:
@@ -117,9 +103,6 @@ async def admit_patient(req: AdmitPatient):
             return result
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# DISCHARGE PATIENT
-# ─────────────────────────────────────────────────────────────────────────────
 @router.post("/discharge")
 async def discharge_patient(req: DischargePatient):
     pool = get_pool()
@@ -135,9 +118,6 @@ async def discharge_patient(req: DischargePatient):
             return result
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Room occupancy view
-# ─────────────────────────────────────────────────────────────────────────────
 @router.get("/occupancy")
 async def room_occupancy():
     pool = get_pool()

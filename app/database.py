@@ -1,15 +1,14 @@
 """
-Database connection pool management using asyncpg.
-All database interaction uses raw SQL — no ORM.
+Database Connection Manager
+Asynchronous connection pool initialization and schema path configuration.
 """
 
-import asyncpg
 import os
+import asyncpg
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# ─── Configuration ───────────────────────────────────────────────────────────
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "port": int(os.getenv("DB_PORT", "5432")),
@@ -20,17 +19,14 @@ DB_CONFIG = {
     "max_size": int(os.getenv("DB_POOL_MAX", "20")),
 }
 
-# ─── Global pool reference ──────────────────────────────────────────────────
 _pool: asyncpg.Pool | None = None
 
 
 async def _init_connection(conn):
-    """Ensure search_path is set to hms schema on every connection."""
     await conn.execute("SET search_path TO hms, public;")
 
 
 async def init_pool() -> asyncpg.Pool:
-    """Create the connection pool. Called once at application startup."""
     global _pool
     _pool = await asyncpg.create_pool(
         host=DB_CONFIG["host"],
@@ -47,7 +43,6 @@ async def init_pool() -> asyncpg.Pool:
 
 
 async def close_pool():
-    """Gracefully close the pool. Called at application shutdown."""
     global _pool
     if _pool:
         await _pool.close()
@@ -55,7 +50,6 @@ async def close_pool():
 
 
 def get_pool() -> asyncpg.Pool:
-    """Return the active connection pool. Raises if not initialized."""
     if _pool is None:
-        raise RuntimeError("Database pool not initialized. Call init_pool() first.")
+        raise RuntimeError("Database pool not initialized.")
     return _pool

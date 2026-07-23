@@ -1,10 +1,6 @@
 """
-Appointments — Concurrency Showcase
-
-Demonstrates:
-- SELECT ... FOR UPDATE row-level locking to prevent double-booking
-- Explicit transaction blocks with READ COMMITTED isolation
-- Calling stored function fn_book_appointment for atomic booking
+Appointments Route Handler
+Provides booking endpoints with SELECT FOR UPDATE concurrency protection.
 """
 
 from fastapi import APIRouter, HTTPException, Query
@@ -17,7 +13,7 @@ router = APIRouter(prefix="/api/appointments", tags=["Appointments"])
 class AppointmentBook(BaseModel):
     patient_id: int
     doctor_id: int
-    appointment_datetime: str   # ISO format: 2025-03-15T10:00:00
+    appointment_datetime: str
     duration_minutes: int = 30
     reason: str | None = None
 
@@ -26,9 +22,6 @@ class AppointmentCancel(BaseModel):
     appointment_id: int
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# LIST appointments with filters
-# ─────────────────────────────────────────────────────────────────────────────
 @router.get("")
 async def list_appointments(
     limit: int = Query(50, ge=1, le=500),
@@ -56,17 +49,17 @@ async def list_appointments(
         idx += 1
 
     where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
-
     params.extend([limit, offset])
+
     query = f"""
         SELECT a.appointment_id, a.appointment_datetime, a.duration_minutes,
                a.status, a.reason, a.created_at,
                p.first_name || ' ' || p.last_name AS patient_name,
                d.first_name || ' ' || d.last_name AS doctor_name,
                d.specialization
-        FROM appointments a
-        JOIN patients p ON p.patient_id = a.patient_id
-        JOIN doctors d ON d.doctor_id = a.doctor_id
+        FROM hms.appointments a
+        JOIN hms.patients p ON p.patient_id = a.patient_id
+        JOIN hms.doctors d ON d.doctor_id = a.doctor_id
         {where_clause}
         ORDER BY a.appointment_datetime DESC
         LIMIT ${idx} OFFSET ${idx + 1}
@@ -78,31 +71,14 @@ async def list_appointments(
 @router.get("/count")
 async def count_appointments():
     pool = get_pool()
-    count = await pool.fetchval("SELECT COUNT(*) FROM appointments")
+    count = await pool.fetchval("SELECT COUNT(*) FROM hms.appointments")
     return {"count": count}
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# BOOK appointment — CONCURRENCY SHOWCASE
-#
-# This endpoint demonstrates TWO concurrency-safe approaches:
-# 1. Application-level: explicit FOR UPDATE lock in a transaction
-# 2. Database-level: calling fn_book_appointment stored function
-#
-# We use the stored function approach in production, but show
-# the raw transaction approach in the /book/raw endpoint for learning.
-# ─────────────────────────────────────────────────────────────────────────────
-
 @router.post("/book")
 async def book_appointment(appt: AppointmentBook):
-    """
-    Book via stored function fn_book_appointment.
-    The function internally uses SELECT ... FOR UPDATE on the doctor row
-    to prevent race conditions.
-    """
     pool = get_pool()
     async with pool.acquire() as conn:
-        # The stored function handles all locking internally
         async with conn.transaction():
             row = await conn.fetchrow("""
                 SELECT * FROM fn_book_appointment($1, $2, $3::TIMESTAMP, $4, $5)
@@ -118,35 +94,17 @@ async def book_appointment(appt: AppointmentBook):
 @router.post("/book/raw")
 async def book_appointment_raw(appt: AppointmentBook):
     """
-    Book via explicit application-level transaction with FOR UPDATE locking.
-    This endpoint exists to showcase the raw concurrency mechanism.
-
-    Transaction flow:
-    1. BEGIN (implicit via conn.transaction())
-    2. SELECT ... FOR UPDATE on doctor row → locks the row
-    3. Check for time-slot conflicts
-    4. INSERT appointment
-    5. COMMIT → releases the lock
-
-    If two receptionists try to book the same doctor/time simultaneously:
-    - Request A acquires the lock at step 2
-    - Request B WAITS at step 2 until A commits
-    - Request B then sees A's inserted appointment at step 3
-    - Request B returns conflict error
+    Explicit transaction booking using SELECT ... FOR UPDATE to lock doctor schedule.
     """
     pool = get_pool()
     async with pool.acquire() as conn:
-        # ─── Explicit transaction with READ COMMITTED isolation ──────────
         async with conn.transaction(isolation="read_committed"):
-
-            # STEP 1: Lock the doctor row — prevents concurrent bookings
             doctor = await conn.fetchrow("""
                 SELECT doctor_id, availability_status
                 FROM doctors
                 WHERE doctor_id = $1
                 FOR UPDATE
             """, appt.doctor_id)
-            # ^^^ Any concurrent transaction hitting this same row will BLOCK here
 
             if not doctor:
                 raise HTTPException(status_code=404, detail="Doctor not found")
@@ -157,7 +115,6 @@ async def book_appointment_raw(appt: AppointmentBook):
                     detail=f"Doctor is currently {doctor['availability_status']}"
                 )
 
-            # STEP 2: Check for overlapping appointments
             conflict = await conn.fetchval("""
                 SELECT COUNT(*)
                 FROM appointments
@@ -173,7 +130,6 @@ async def book_appointment_raw(appt: AppointmentBook):
                     detail="Time slot conflicts with an existing appointment"
                 )
 
-            # STEP 3: Insert the appointment
             row = await conn.fetchrow("""
                 INSERT INTO appointments
                     (patient_id, doctor_id, appointment_datetime,
@@ -183,16 +139,12 @@ async def book_appointment_raw(appt: AppointmentBook):
             """, appt.patient_id, appt.doctor_id, appt.appointment_datetime,
                 appt.duration_minutes, appt.reason)
 
-            # STEP 4: COMMIT happens automatically when exiting the block
             return {
                 **dict(row),
                 "status_message": f"SUCCESS: Appointment #{row['appointment_id']} booked (raw tx)"
             }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CANCEL appointment
-# ─────────────────────────────────────────────────────────────────────────────
 @router.post("/cancel")
 async def cancel_appointment(cancel: AppointmentCancel):
     pool = get_pool()

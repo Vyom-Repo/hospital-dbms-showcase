@@ -1,6 +1,6 @@
 """
-Billing — CRUD + Payment Processing
-Demonstrates trigger-based auto-status via trg_auto_payment_status
+Billing Route Handler
+Manages patient invoices and trigger-enforced payment classification.
 """
 
 from fastapi import APIRouter, HTTPException, Query
@@ -14,13 +14,13 @@ class BillCreate(BaseModel):
     patient_id: int
     appointment_id: int | None = None
     total_amount: float
-    payment_method: str | None = None  # cash, card, insurance, online
+    payment_method: str | None = None
 
 
 class PaymentUpdate(BaseModel):
     bill_id: int
     paid_amount: float
-    payment_method: str  # cash, card, insurance, online
+    payment_method: str
 
 
 @router.get("")
@@ -52,8 +52,8 @@ async def list_bills(
                b.payment_method, b.bill_date, b.paid_date,
                p.first_name || ' ' || p.last_name AS patient_name,
                b.appointment_id
-        FROM billing b
-        JOIN patients p ON p.patient_id = b.patient_id
+        FROM hms.billing b
+        JOIN hms.patients p ON p.patient_id = b.patient_id
         {where_clause}
         ORDER BY b.bill_date DESC
         LIMIT ${idx} OFFSET ${idx + 1}
@@ -64,7 +64,7 @@ async def list_bills(
 @router.get("/count")
 async def count_bills():
     pool = get_pool()
-    count = await pool.fetchval("SELECT COUNT(*) FROM billing")
+    count = await pool.fetchval("SELECT COUNT(*) FROM hms.billing")
     return {"count": count}
 
 
@@ -86,17 +86,9 @@ async def create_bill(bill: BillCreate):
 
 @router.post("/pay")
 async def make_payment(payment: PaymentUpdate):
-    """
-    Process a payment. The trg_auto_payment_status trigger
-    automatically updates payment_status based on paid_amount vs total_amount:
-    - paid_amount >= total_amount → 'paid'
-    - 0 < paid_amount < total_amount → 'partial'
-    - paid_amount == 0 → 'pending'
-    """
     pool = get_pool()
     async with pool.acquire() as conn:
         async with conn.transaction():
-            # Check current bill
             bill = await conn.fetchrow("""
                 SELECT bill_id, total_amount, paid_amount
                 FROM billing
@@ -111,13 +103,9 @@ async def make_payment(payment: PaymentUpdate):
             if new_paid > float(bill["total_amount"]):
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Payment exceeds outstanding amount. "
-                           f"Total: {bill['total_amount']}, "
-                           f"Already paid: {bill['paid_amount']}, "
-                           f"Attempted: {payment.paid_amount}"
+                    detail=f"Payment exceeds outstanding amount. Total: {bill['total_amount']}, Already paid: {bill['paid_amount']}, Attempted: {payment.paid_amount}"
                 )
 
-            # Update — trigger will auto-set payment_status
             row = await conn.fetchrow("""
                 UPDATE billing
                 SET paid_amount = $1,
@@ -132,7 +120,6 @@ async def make_payment(payment: PaymentUpdate):
 
 @router.get("/summary")
 async def billing_summary():
-    """Patient billing summary from v_patient_billing_summary view."""
     pool = get_pool()
     rows = await pool.fetch("""
         SELECT * FROM v_patient_billing_summary

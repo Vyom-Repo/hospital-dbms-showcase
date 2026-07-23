@@ -1,9 +1,6 @@
-/* =============================================================================
-   Hospital Management System — Dark Theme
-   Minimalist, data-focused interface. A transparent window into the database.
-   ============================================================================= */
-
-/* ─── CSS Reset & Variables ──────────────────────────────────────────────── */
+/* 
+   Application Stylesheet — Dark Theme Design System
+*/
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {

@@ -1,5 +1,6 @@
 """
-Doctors — CRUD routes
+Doctors Route Handler
+Directory and availability management for medical consultants.
 """
 
 from fastapi import APIRouter, HTTPException, Query
@@ -16,7 +17,7 @@ class DoctorCreate(BaseModel):
     phone: str | None = None
     specialization: str
     department_id: int
-    hire_date: str  # YYYY-MM-DD
+    hire_date: str
 
 
 @router.get("")
@@ -31,8 +32,8 @@ async def list_doctors(
             SELECT d.doctor_id, d.first_name, d.last_name, d.email, d.phone,
                    d.specialization, d.availability_status, d.hire_date,
                    dep.name AS department_name
-            FROM doctors d
-            JOIN departments dep ON dep.department_id = d.department_id
+            FROM hms.doctors d
+            JOIN hms.departments dep ON dep.department_id = d.department_id
             WHERE d.department_id = $1
             ORDER BY d.last_name, d.first_name
             LIMIT $2 OFFSET $3
@@ -42,8 +43,8 @@ async def list_doctors(
             SELECT d.doctor_id, d.first_name, d.last_name, d.email, d.phone,
                    d.specialization, d.availability_status, d.hire_date,
                    dep.name AS department_name
-            FROM doctors d
-            JOIN departments dep ON dep.department_id = d.department_id
+            FROM hms.doctors d
+            JOIN hms.departments dep ON dep.department_id = d.department_id
             ORDER BY d.last_name, d.first_name
             LIMIT $1 OFFSET $2
         """, limit, offset)
@@ -53,7 +54,7 @@ async def list_doctors(
 @router.get("/count")
 async def count_doctors():
     pool = get_pool()
-    count = await pool.fetchval("SELECT COUNT(*) FROM doctors")
+    count = await pool.fetchval("SELECT COUNT(*) FROM hms.doctors")
     return {"count": count}
 
 

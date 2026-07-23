@@ -1,5 +1,6 @@
 """
-Departments — CRUD routes
+Departments Route Handler
+Management of clinical departments and facility wings.
 """
 
 from fastapi import APIRouter, HTTPException
@@ -22,7 +23,7 @@ async def list_departments():
     rows = await pool.fetch("""
         SELECT department_id, name, building, floor_number,
                phone_extension, created_at
-        FROM departments
+        FROM hms.departments
         ORDER BY name
     """)
     return [dict(r) for r in rows]
@@ -48,7 +49,7 @@ async def get_department(department_id: int):
     row = await pool.fetchrow("""
         SELECT department_id, name, building, floor_number,
                phone_extension, created_at
-        FROM departments WHERE department_id = $1
+        FROM hms.departments WHERE department_id = $1
     """, department_id)
     if not row:
         raise HTTPException(status_code=404, detail="Department not found")

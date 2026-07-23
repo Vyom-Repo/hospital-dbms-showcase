@@ -1,5 +1,6 @@
 """
-Medical Records — CRUD routes
+Medical Records Route Handler
+Management of patient clinical records, diagnoses, and prescriptions.
 """
 
 from fastapi import APIRouter, HTTPException, Query
@@ -31,9 +32,9 @@ async def list_records(
                    mr.created_at, mr.appointment_id,
                    p.first_name || ' ' || p.last_name AS patient_name,
                    d.first_name || ' ' || d.last_name AS doctor_name
-            FROM medical_records mr
-            JOIN patients p ON p.patient_id = mr.patient_id
-            JOIN doctors d ON d.doctor_id = mr.doctor_id
+            FROM hms.medical_records mr
+            JOIN hms.patients p ON p.patient_id = mr.patient_id
+            JOIN hms.doctors d ON d.doctor_id = mr.doctor_id
             WHERE mr.patient_id = $1
             ORDER BY mr.created_at DESC
             LIMIT $2 OFFSET $3
@@ -44,9 +45,9 @@ async def list_records(
                    mr.created_at, mr.appointment_id,
                    p.first_name || ' ' || p.last_name AS patient_name,
                    d.first_name || ' ' || d.last_name AS doctor_name
-            FROM medical_records mr
-            JOIN patients p ON p.patient_id = mr.patient_id
-            JOIN doctors d ON d.doctor_id = mr.doctor_id
+            FROM hms.medical_records mr
+            JOIN hms.patients p ON p.patient_id = mr.patient_id
+            JOIN hms.doctors d ON d.doctor_id = mr.doctor_id
             ORDER BY mr.created_at DESC
             LIMIT $1 OFFSET $2
         """, limit, offset)
@@ -56,7 +57,7 @@ async def list_records(
 @router.get("/count")
 async def count_records():
     pool = get_pool()
-    count = await pool.fetchval("SELECT COUNT(*) FROM medical_records")
+    count = await pool.fetchval("SELECT COUNT(*) FROM hms.medical_records")
     return {"count": count}
 
 

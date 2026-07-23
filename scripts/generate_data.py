@@ -1,16 +1,6 @@
 """
-Hospital Management System — Massive Data Generator
-
-Populates the HMS database with realistic dummy data:
-- 15 Departments
-- 200 Doctors
-- 100,000 Patients
-- 300 Rooms
-- 500,000 Appointments
-- 400,000 Medical Records
-- 500,000 Billing records
-
-Uses Python Faker + asyncpg COPY for high-speed bulk inserts.
+Database Population Tool
+Generates synthetic benchmark datasets using Faker and asyncpg bulk COPY buffers.
 """
 
 import asyncio
@@ -23,14 +13,12 @@ from datetime import datetime, timedelta, date
 from faker import Faker
 from dotenv import load_dotenv
 
-# Load environment variables from .env file if present
 load_dotenv()
 
 fake = Faker()
 Faker.seed(42)
 random.seed(42)
 
-# ─── Configuration ───────────────────────────────────────────────────────────
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "port": int(os.getenv("DB_PORT", "5432")),

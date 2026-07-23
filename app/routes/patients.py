@@ -1,5 +1,6 @@
 """
-Patients — CRUD routes
+Patients Route Handler
+Patient registration, demographics, and directory lookups.
 """
 
 from fastapi import APIRouter, HTTPException, Query
@@ -12,7 +13,7 @@ router = APIRouter(prefix="/api/patients", tags=["Patients"])
 class PatientCreate(BaseModel):
     first_name: str
     last_name: str
-    date_of_birth: str  # YYYY-MM-DD
+    date_of_birth: str
     gender: str
     email: str | None = None
     phone: str | None = None
@@ -33,7 +34,7 @@ async def list_patients(
         rows = await pool.fetch("""
             SELECT patient_id, first_name, last_name, date_of_birth,
                    gender, email, phone, blood_group, registered_at
-            FROM patients
+            FROM hms.patients
             WHERE first_name ILIKE $1 OR last_name ILIKE $1 OR email ILIKE $1
             ORDER BY patient_id DESC
             LIMIT $2 OFFSET $3
@@ -42,7 +43,7 @@ async def list_patients(
         rows = await pool.fetch("""
             SELECT patient_id, first_name, last_name, date_of_birth,
                    gender, email, phone, blood_group, registered_at
-            FROM patients
+            FROM hms.patients
             ORDER BY patient_id DESC
             LIMIT $1 OFFSET $2
         """, limit, offset)
@@ -52,7 +53,7 @@ async def list_patients(
 @router.get("/count")
 async def count_patients():
     pool = get_pool()
-    count = await pool.fetchval("SELECT COUNT(*) FROM patients")
+    count = await pool.fetchval("SELECT COUNT(*) FROM hms.patients")
     return {"count": count}
 
 
@@ -61,7 +62,7 @@ async def create_patient(patient: PatientCreate):
     pool = get_pool()
     try:
         row = await pool.fetchrow("""
-            INSERT INTO patients (first_name, last_name, date_of_birth, gender,
+            INSERT INTO hms.patients (first_name, last_name, date_of_birth, gender,
                                   email, phone, address, blood_group,
                                   emergency_contact_name, emergency_contact_phone)
             VALUES ($1, $2, $3::DATE, $4, $5, $6, $7, $8, $9, $10)
@@ -79,7 +80,7 @@ async def create_patient(patient: PatientCreate):
 async def get_patient(patient_id: int):
     pool = get_pool()
     row = await pool.fetchrow("""
-        SELECT * FROM patients WHERE patient_id = $1
+        SELECT * FROM hms.patients WHERE patient_id = $1
     """, patient_id)
     if not row:
         raise HTTPException(status_code=404, detail="Patient not found")

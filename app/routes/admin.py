@@ -1,10 +1,6 @@
 """
-Admin — Database views, EXPLAIN ANALYZE runner, DB statistics
-
-This module exposes:
-1. All database views for administrative reporting
-2. An EXPLAIN ANALYZE endpoint to run performance queries
-3. Database statistics (table sizes, index usage)
+Admin & Performance Analytics
+Exposes system metrics, view aggregations, and execution plan benchmarks.
 """
 
 from fastapi import APIRouter, HTTPException
@@ -13,16 +9,11 @@ from database import get_pool
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# VIEW ENDPOINTS
-# ─────────────────────────────────────────────────────────────────────────────
-
 @router.get("/views/revenue")
 async def monthly_revenue(
     year: int | None = None,
     month: int | None = None,
 ):
-    """Monthly revenue by department from v_monthly_revenue_by_department."""
     pool = get_pool()
     if year and month:
         rows = await pool.fetch("""
@@ -41,7 +32,6 @@ async def monthly_revenue(
 
 @router.get("/views/doctor-load")
 async def doctor_load():
-    """Doctor appointment load from v_doctor_appointment_load."""
     pool = get_pool()
     rows = await pool.fetch("SELECT * FROM v_doctor_appointment_load LIMIT 200")
     return [dict(r) for r in rows]
@@ -49,7 +39,6 @@ async def doctor_load():
 
 @router.get("/views/room-occupancy")
 async def room_occupancy():
-    """Room occupancy from v_room_occupancy_dashboard."""
     pool = get_pool()
     rows = await pool.fetch("SELECT * FROM v_room_occupancy_dashboard")
     return [dict(r) for r in rows]
@@ -57,7 +46,6 @@ async def room_occupancy():
 
 @router.get("/views/billing-summary")
 async def billing_summary():
-    """Patient billing summary from v_patient_billing_summary."""
     pool = get_pool()
     rows = await pool.fetch("""
         SELECT * FROM v_patient_billing_summary
@@ -70,7 +58,6 @@ async def billing_summary():
 
 @router.get("/views/department-stats")
 async def department_stats():
-    """Department statistics from mv_department_statistics (materialized)."""
     pool = get_pool()
     rows = await pool.fetch("SELECT * FROM mv_department_statistics")
     return [dict(r) for r in rows]
@@ -78,22 +65,15 @@ async def department_stats():
 
 @router.post("/views/refresh-materialized")
 async def refresh_materialized():
-    """Refresh the materialized view (heavy operation)."""
     pool = get_pool()
     await pool.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY mv_department_statistics")
     return {"status": "Materialized view refreshed successfully"}
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# EXPLAIN ANALYZE — Performance query runner
-# ─────────────────────────────────────────────────────────────────────────────
-
-# Pre-defined performance queries to showcase optimization
 PERFORMANCE_QUERIES = {
     "appointment_conflict_check": {
         "title": "Appointment Conflict Detection",
-        "description": "Check for overlapping appointments for a specific doctor. "
-                       "Uses idx_appointments_doctor_datetime composite index.",
+        "description": "Check for overlapping appointments for a specific doctor using idx_appointments_doctor_datetime index.",
         "sql": """
             SELECT a.appointment_id, a.appointment_datetime, a.duration_minutes
             FROM hms.appointments a
@@ -105,8 +85,7 @@ PERFORMANCE_QUERIES = {
     },
     "patient_history_lookup": {
         "title": "Patient Medical History",
-        "description": "Retrieve complete medical history for a patient, ordered by recency. "
-                       "Uses idx_medrec_patient_created composite index.",
+        "description": "Retrieve complete medical history using idx_medrec_patient_created index.",
         "sql": """
             SELECT mr.record_id, mr.diagnosis, mr.prescription, mr.created_at,
                    d.first_name || ' ' || d.last_name AS doctor_name
@@ -119,8 +98,7 @@ PERFORMANCE_QUERIES = {
     },
     "monthly_revenue_aggregation": {
         "title": "Monthly Revenue Aggregation",
-        "description": "Aggregate billing data by department for a given month. "
-                       "Uses idx_billing_date B-Tree index for date range scan.",
+        "description": "Aggregate billing data by department using idx_billing_date index.",
         "sql": """
             SELECT dep.name AS department,
                    COUNT(b.bill_id) AS bills,
@@ -137,8 +115,7 @@ PERFORMANCE_QUERIES = {
     },
     "doctor_schedule_range": {
         "title": "Doctor Weekly Schedule",
-        "description": "Fetch a doctor's full schedule for the week ahead. "
-                       "Uses idx_appointments_doctor_datetime for efficient range scan.",
+        "description": "Fetch doctor schedule using idx_appointments_doctor_datetime index.",
         "sql": """
             SELECT a.appointment_id, a.appointment_datetime,
                    a.duration_minutes, a.status,
@@ -153,8 +130,7 @@ PERFORMANCE_QUERIES = {
     },
     "room_availability_search": {
         "title": "Available Rooms by Department",
-        "description": "Find rooms with available beds in a specific department. "
-                       "Uses idx_rooms_available partial index.",
+        "description": "Find available beds using idx_rooms_available partial index.",
         "sql": """
             SELECT r.room_id, r.room_number, r.room_type,
                    r.total_beds, r.occupied_beds,
@@ -168,8 +144,7 @@ PERFORMANCE_QUERIES = {
     },
     "outstanding_payments": {
         "title": "Outstanding Patient Payments",
-        "description": "Find patients with large outstanding balances. "
-                       "Uses idx_billing_patient_status composite index.",
+        "description": "Find patients with outstanding balances using idx_billing_patient_status index.",
         "sql": """
             SELECT p.patient_id,
                    p.first_name || ' ' || p.last_name AS patient_name,
@@ -188,7 +163,6 @@ PERFORMANCE_QUERIES = {
 
 @router.get("/explain")
 async def list_performance_queries():
-    """List all available performance queries."""
     return {
         key: {"title": q["title"], "description": q["description"]}
         for key, q in PERFORMANCE_QUERIES.items()
@@ -197,10 +171,6 @@ async def list_performance_queries():
 
 @router.get("/explain/{query_key}")
 async def run_explain_analyze(query_key: str):
-    """
-    Run EXPLAIN ANALYZE on a predefined performance query.
-    Returns the query plan showing index usage and execution time.
-    """
     if query_key not in PERFORMANCE_QUERIES:
         raise HTTPException(
             status_code=404,
@@ -210,11 +180,8 @@ async def run_explain_analyze(query_key: str):
     pq = PERFORMANCE_QUERIES[query_key]
     pool = get_pool()
 
-    # Run EXPLAIN ANALYZE
     rows = await pool.fetch(f"EXPLAIN ANALYZE {pq['sql']}")
     plan_lines = [row["QUERY PLAN"] for row in rows]
-
-    # Also run the query itself to get results
     result_rows = await pool.fetch(pq["sql"])
 
     return {
@@ -228,13 +195,8 @@ async def run_explain_analyze(query_key: str):
     }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# DATABASE STATISTICS
-# ─────────────────────────────────────────────────────────────────────────────
-
 @router.get("/stats/tables")
 async def table_stats():
-    """Get row counts and sizes for all HMS tables."""
     pool = get_pool()
     rows = await pool.fetch("""
         SELECT
@@ -254,7 +216,6 @@ async def table_stats():
 
 @router.get("/stats/indexes")
 async def index_stats():
-    """Get index usage statistics."""
     pool = get_pool()
     rows = await pool.fetch("""
         SELECT
@@ -274,7 +235,6 @@ async def index_stats():
 
 @router.get("/dashboard")
 async def dashboard_stats():
-    """Aggregate dashboard statistics for the frontend."""
     pool = get_pool()
     async with pool.acquire() as conn:
         patients = await conn.fetchval("SELECT COUNT(*) FROM patients")
