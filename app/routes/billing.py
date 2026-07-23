@@ -3,11 +3,22 @@ Billing Route Handler
 Manages patient invoices and trigger-enforced payment classification.
 """
 
+from decimal import Decimal
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from app.database import get_pool
 
 router = APIRouter(prefix="/api/billing", tags=["Billing"])
+
+
+def serialize_row(row):
+    if row is None:
+        return None
+    d = dict(row)
+    for k, v in d.items():
+        if isinstance(v, Decimal):
+            d[k] = float(v)
+    return d
 
 
 class BillCreate(BaseModel):
@@ -58,7 +69,7 @@ async def list_bills(
         ORDER BY b.bill_date DESC
         LIMIT ${idx} OFFSET ${idx + 1}
     """, *params)
-    return [dict(r) for r in rows]
+    return [serialize_row(r) for r in rows]
 
 
 @router.get("/count")
@@ -73,13 +84,13 @@ async def create_bill(bill: BillCreate):
     pool = get_pool()
     try:
         row = await pool.fetchrow("""
-            INSERT INTO billing (patient_id, appointment_id, total_amount,
+            INSERT INTO hms.billing (patient_id, appointment_id, total_amount,
                                   payment_method)
             VALUES ($1, $2, $3, $4)
             RETURNING bill_id, total_amount, payment_status, bill_date
         """, bill.patient_id, bill.appointment_id,
             bill.total_amount, bill.payment_method)
-        return dict(row)
+        return serialize_row(row)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -91,7 +102,7 @@ async def make_payment(payment: PaymentUpdate):
         async with conn.transaction():
             bill = await conn.fetchrow("""
                 SELECT bill_id, total_amount, paid_amount
-                FROM billing
+                FROM hms.billing
                 WHERE bill_id = $1
                 FOR UPDATE
             """, payment.bill_id)
@@ -107,7 +118,7 @@ async def make_payment(payment: PaymentUpdate):
                 )
 
             row = await conn.fetchrow("""
-                UPDATE billing
+                UPDATE hms.billing
                 SET paid_amount = $1,
                     payment_method = $2
                 WHERE bill_id = $3
@@ -115,16 +126,16 @@ async def make_payment(payment: PaymentUpdate):
                           payment_status, paid_date
             """, new_paid, payment.payment_method, payment.bill_id)
 
-            return dict(row)
+            return serialize_row(row)
 
 
 @router.get("/summary")
 async def billing_summary():
     pool = get_pool()
     rows = await pool.fetch("""
-        SELECT * FROM v_patient_billing_summary
+        SELECT * FROM hms.v_patient_billing_summary
         WHERE total_bills > 0
         ORDER BY outstanding_balance DESC
         LIMIT 100
     """)
-    return [dict(r) for r in rows]
+    return [serialize_row(r) for r in rows]

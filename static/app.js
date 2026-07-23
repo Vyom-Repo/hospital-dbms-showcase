@@ -21,10 +21,16 @@ const HMS = (() => {
                 headers: { 'Content-Type': 'application/json' },
                 ...options,
             });
-            const data = await resp.json();
             if (!resp.ok) {
-                throw new Error(data.detail || `HTTP ${resp.status}`);
+                const text = await resp.text();
+                let detail = text;
+                try {
+                    const parsed = JSON.parse(text);
+                    detail = parsed.detail || text;
+                } catch (e) {}
+                throw new Error(detail);
             }
+            const data = await resp.json();
             return data;
         } catch (err) {
             toast(err.message, 'error');

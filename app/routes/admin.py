@@ -3,10 +3,22 @@ Admin & Performance Analytics
 Exposes system metrics, view aggregations, and execution plan benchmarks.
 """
 
+from decimal import Decimal
 from fastapi import APIRouter, HTTPException
 from app.database import get_pool
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
+
+
+def serialize_row(row):
+    """Convert asyncpg Record or dict containing Decimal objects to JSON-serializable types."""
+    if row is None:
+        return None
+    d = dict(row)
+    for k, v in d.items():
+        if isinstance(v, Decimal):
+            d[k] = float(v)
+    return d
 
 
 @router.get("/views/revenue")
@@ -17,56 +29,56 @@ async def monthly_revenue(
     pool = get_pool()
     if year and month:
         rows = await pool.fetch("""
-            SELECT * FROM v_monthly_revenue_by_department
+            SELECT * FROM hms.v_monthly_revenue_by_department
             WHERE month = $1
             ORDER BY total_billed DESC
         """, f"{year}-{month:02d}")
     else:
         rows = await pool.fetch("""
-            SELECT * FROM v_monthly_revenue_by_department
+            SELECT * FROM hms.v_monthly_revenue_by_department
             ORDER BY month DESC, total_billed DESC
             LIMIT 200
         """)
-    return [dict(r) for r in rows]
+    return [serialize_row(r) for r in rows]
 
 
 @router.get("/views/doctor-load")
 async def doctor_load():
     pool = get_pool()
-    rows = await pool.fetch("SELECT * FROM v_doctor_appointment_load LIMIT 200")
-    return [dict(r) for r in rows]
+    rows = await pool.fetch("SELECT * FROM hms.v_doctor_appointment_load LIMIT 200")
+    return [serialize_row(r) for r in rows]
 
 
 @router.get("/views/room-occupancy")
 async def room_occupancy():
     pool = get_pool()
-    rows = await pool.fetch("SELECT * FROM v_room_occupancy_dashboard")
-    return [dict(r) for r in rows]
+    rows = await pool.fetch("SELECT * FROM hms.v_room_occupancy_dashboard")
+    return [serialize_row(r) for r in rows]
 
 
 @router.get("/views/billing-summary")
 async def billing_summary():
     pool = get_pool()
     rows = await pool.fetch("""
-        SELECT * FROM v_patient_billing_summary
+        SELECT * FROM hms.v_patient_billing_summary
         WHERE total_bills > 0
         ORDER BY outstanding_balance DESC
         LIMIT 100
     """)
-    return [dict(r) for r in rows]
+    return [serialize_row(r) for r in rows]
 
 
 @router.get("/views/department-stats")
 async def department_stats():
     pool = get_pool()
-    rows = await pool.fetch("SELECT * FROM mv_department_statistics")
-    return [dict(r) for r in rows]
+    rows = await pool.fetch("SELECT * FROM hms.mv_department_statistics")
+    return [serialize_row(r) for r in rows]
 
 
 @router.post("/views/refresh-materialized")
 async def refresh_materialized():
     pool = get_pool()
-    await pool.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY mv_department_statistics")
+    await pool.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY hms.mv_department_statistics")
     return {"status": "Materialized view refreshed successfully"}
 
 
@@ -191,7 +203,7 @@ async def run_explain_analyze(query_key: str):
         "sql": pq["sql"].strip(),
         "explain_analyze": plan_lines,
         "result_count": len(result_rows),
-        "sample_results": [dict(r) for r in result_rows[:5]],
+        "sample_results": [serialize_row(r) for r in result_rows[:5]],
     }
 
 
@@ -211,7 +223,7 @@ async def table_stats():
           AND c.relkind = 'r'
         ORDER BY pg_total_relation_size(c.oid) DESC
     """)
-    return [dict(r) for r in rows]
+    return [serialize_row(r) for r in rows]
 
 
 @router.get("/stats/indexes")
@@ -230,31 +242,31 @@ async def index_stats():
         WHERE schemaname = 'hms'
         ORDER BY idx_scan DESC
     """)
-    return [dict(r) for r in rows]
+    return [serialize_row(r) for r in rows]
 
 
 @router.get("/dashboard")
 async def dashboard_stats():
     pool = get_pool()
     async with pool.acquire() as conn:
-        patients = await conn.fetchval("SELECT COUNT(*) FROM patients")
-        doctors = await conn.fetchval("SELECT COUNT(*) FROM doctors")
+        patients = await conn.fetchval("SELECT COUNT(*) FROM hms.patients")
+        doctors = await conn.fetchval("SELECT COUNT(*) FROM hms.doctors")
         appointments_today = await conn.fetchval("""
-            SELECT COUNT(*) FROM appointments
+            SELECT COUNT(*) FROM hms.appointments
             WHERE appointment_datetime::DATE = CURRENT_DATE
               AND status = 'scheduled'
         """)
-        total_appointments = await conn.fetchval("SELECT COUNT(*) FROM appointments")
+        total_appointments = await conn.fetchval("SELECT COUNT(*) FROM hms.appointments")
         pending_bills = await conn.fetchval("""
-            SELECT COUNT(*) FROM billing WHERE payment_status = 'pending'
+            SELECT COUNT(*) FROM hms.billing WHERE payment_status = 'pending'
         """)
         total_revenue = await conn.fetchval("""
-            SELECT COALESCE(SUM(paid_amount), 0) FROM billing
+            SELECT COALESCE(SUM(paid_amount), 0) FROM hms.billing
         """)
         occupancy = await conn.fetchrow("""
             SELECT COALESCE(SUM(occupied_beds), 0) AS occupied,
                    COALESCE(SUM(total_beds), 0) AS total
-            FROM rooms
+            FROM hms.rooms
         """)
 
         return {
