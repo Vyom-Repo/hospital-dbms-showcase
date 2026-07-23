@@ -136,7 +136,16 @@ const HMS = (() => {
             case 'reports': loadReports(); break;
             case 'er-diagram': initMermaid(); break;
             case 'performance': loadPerformanceQueries(); break;
+            case 'about': initAboutTab(); break;
         }
+    }
+
+    function initAboutTab() {
+        try {
+            if (window.mermaid) {
+                mermaid.run({ querySelector: '#panel-about .mermaid' });
+            }
+        } catch (e) {}
     }
 
     // ─── Dashboard ──────────────────────────────────────────────────────
