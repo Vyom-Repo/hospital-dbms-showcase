@@ -5,6 +5,9 @@ All database interaction uses raw SQL — no ORM.
 
 import asyncpg
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 DB_CONFIG = {
@@ -21,6 +24,11 @@ DB_CONFIG = {
 _pool: asyncpg.Pool | None = None
 
 
+async def _init_connection(conn):
+    """Ensure search_path is set to hms schema on every connection."""
+    await conn.execute("SET search_path TO hms, public;")
+
+
 async def init_pool() -> asyncpg.Pool:
     """Create the connection pool. Called once at application startup."""
     global _pool
@@ -32,7 +40,7 @@ async def init_pool() -> asyncpg.Pool:
         database=DB_CONFIG["database"],
         min_size=DB_CONFIG["min_size"],
         max_size=DB_CONFIG["max_size"],
-        # Set default search_path so all queries resolve to hms schema
+        init=_init_connection,
         server_settings={"search_path": "hms, public"},
     )
     return _pool

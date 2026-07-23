@@ -7,7 +7,7 @@ This module exposes:
 3. Database statistics (table sizes, index usage)
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from database import get_pool
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])

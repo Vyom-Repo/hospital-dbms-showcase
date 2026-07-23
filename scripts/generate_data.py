@@ -21,6 +21,10 @@ import random
 import sys
 from datetime import datetime, timedelta, date
 from faker import Faker
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if present
+load_dotenv()
 
 fake = Faker()
 Faker.seed(42)
