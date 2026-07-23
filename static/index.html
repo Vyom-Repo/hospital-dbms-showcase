@@ -227,69 +227,133 @@
                 <tbody></tbody>
             </table>
         </div>
-    </section>
-
-    <!-- ── Billing ───────────────────────────────────────────────────── -->
-    <section class="tab-panel" id="panel-billing">
-        <div class="form-panel">
-            <div class="form-title">💳 Record Payment <span class="badge badge-green">Trigger: Auto-Status</span></div>
-            <form id="form-payment" class="form-grid">
-                <div class="form-group"><label>Bill ID</label><input name="bill_id" type="number" required></div>
-                <div class="form-group"><label>Amount</label><input name="paid_amount" type="number" step="0.01" required></div>
-                <div class="form-group"><label>Method</label>
-                    <select name="payment_method" required>
-                        <option value="cash">Cash (INR)</option>
-                        <option value="card">Debit / Credit Card</option>
-                        <option value="insurance">Ayushman Bharat / Health Insurance</option>
-                        <option value="online">UPI / GPay / NetBanking</option>
-                    </select>
-                </div>
-            </form>
-            <div class="form-actions">
-                <button class="btn btn-primary" onclick="HMS.makePayment()">Process Payment</button>
-            </div>
-        </div>
         <div class="section-header">
-            <div class="section-title">Billing Records <span class="badge badge-blue" id="billing-count">0</span></div>
+            <div class="section-title">🛏️ Inpatient Rooms & Bed Allocation <span class="badge badge-amber">v_room_occupancy_dashboard</span></div>
+            <button class="btn btn-primary" onclick="HMS.openModal('modal-admit')">🚪 Admit Patient</button>
         </div>
         <div class="table-wrapper">
-            <table class="data-table" id="table-billing">
-                <thead><tr>
-                    <th>Bill ID</th><th>Patient</th><th>Total</th><th>Paid</th>
-                    <th>Outstanding</th><th>Status</th><th>Method</th><th>Bill Date</th>
-                </tr></thead>
+            <table id="table-rooms">
+                <thead>
+                    <tr>
+                        <th>Room #</th>
+                        <th>Department</th>
+                        <th>Type</th>
+                        <th>Total Beds</th>
+                        <th>Occupied</th>
+                        <th>Available</th>
+                        <th>Daily Rate</th>
+                        <th>Occupancy Level</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ── Billing ──────────────────────────────────────────────────── -->
+    <section class="tab-panel" id="panel-billing">
+        <div class="section-header">
+            <div class="section-title">💳 Billing & Revenue Management <span class="badge badge-green">Trigger Classification</span></div>
+            <button class="btn btn-primary" onclick="HMS.openModal('modal-pay')">💰 Process Payment</button>
+        </div>
+        <div class="toolbar">
+            <select id="billing-status-filter" class="form-control" style="width: auto;" onchange="HMS.loadBilling()">
+                <option value="">All Payment Statuses</option>
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+                <option value="partial">Partial</option>
+            </select>
+        </div>
+        <div class="table-wrapper">
+            <table id="table-billing">
+                <thead>
+                    <tr>
+                        <th>Bill ID</th>
+                        <th>Patient</th>
+                        <th>Total Amount</th>
+                        <th>Paid Amount</th>
+                        <th>Outstanding</th>
+                        <th>Status</th>
+                        <th>Method</th>
+                        <th>Bill Date</th>
+                    </tr>
+                </thead>
                 <tbody></tbody>
             </table>
         </div>
         <div class="pagination" id="pagination-billing"></div>
     </section>
 
-    <!-- ── Reports ───────────────────────────────────────────────────── -->
+    <!-- ── Reports ──────────────────────────────────────────────────── -->
     <section class="tab-panel" id="panel-reports">
         <div class="section-header">
-            <div class="section-title">📈 Monthly Revenue by Department <span class="badge badge-blue">View</span></div>
-        </div>
-        <div class="table-wrapper" style="margin-bottom:24px">
-            <table class="data-table" id="table-revenue">
-                <thead><tr>
-                    <th>Department</th><th>Month</th><th>Bills</th>
-                    <th>Total Billed</th><th>Collected</th><th>Outstanding</th><th>Collection %</th>
-                </tr></thead>
-                <tbody></tbody>
-            </table>
+            <div class="section-title">📈 Analytics & Reporting Views <span class="badge badge-purple">PostgreSQL Views</span></div>
         </div>
 
-        <div class="section-header">
-            <div class="section-title">🩺 Doctor Appointment Load <span class="badge badge-blue">View</span></div>
+        <div class="dashboard-grid">
+            <div class="card" style="grid-column: span 2;">
+                <div class="card-header">
+                    <h3>📅 Monthly Revenue by Department (v_monthly_revenue_by_department)</h3>
+                </div>
+                <div class="table-wrapper">
+                    <table id="table-monthly-revenue">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Month</th>
+                                <th>Total Bills</th>
+                                <th>Total Billed</th>
+                                <th>Collected</th>
+                                <th>Outstanding</th>
+                                <th>Collection Rate %</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="table-wrapper">
-            <table class="data-table" id="table-doctor-load">
-                <thead><tr>
-                    <th>Doctor</th><th>Specialization</th><th>Department</th><th>Status</th>
-                    <th>Upcoming</th><th>Completed</th><th>Cancelled</th><th>Total</th><th>Avg Min</th>
-                </tr></thead>
-                <tbody></tbody>
-            </table>
+
+        <div class="dashboard-grid" style="margin-top:20px;">
+            <div class="card">
+                <div class="card-header">
+                    <h3>🩺 Doctor Appointment Load (v_doctor_appointment_load)</h3>
+                </div>
+                <div class="table-wrapper">
+                    <table id="table-doctor-load">
+                        <thead>
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Department</th>
+                                <th>Appts</th>
+                                <th>Completed</th>
+                                <th>Completion %</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>💳 Top Outstanding Accounts (v_patient_billing_summary)</h3>
+                </div>
+                <div class="table-wrapper">
+                    <table id="table-billing-summary">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Total Bills</th>
+                                <th>Billed</th>
+                                <th>Paid</th>
+                                <th>Outstanding</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -301,6 +365,23 @@
         <div class="er-container" id="er-diagram-container">
             <div class="loading"><span class="spinner"></span> Rendering ER Diagram...</div>
         </div>
+    </section>
+
+    <!-- ── Performance ───────────────────────────────────────────────── -->
+    <section class="tab-panel" id="panel-performance">
+        <div class="section-header">
+            <div class="section-title">⚡ EXPLAIN ANALYZE — Query Performance <span class="badge badge-amber">Live Execution</span></div>
+        </div>
+        <div class="perf-grid">
+            <div class="perf-sidebar" id="perf-query-list">
+                <div class="loading"><span class="spinner"></span> Loading queries...</div>
+            </div>
+            <div class="perf-content" id="perf-result">
+                <div class="empty-state">
+                    <div class="icon">⚡</div>
+                    <p>Select a query from the sidebar to run EXPLAIN ANALYZE</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -314,6 +395,16 @@
             <p class="about-description">
                 A production-inspired Hospital Management System built to demonstrate advanced PostgreSQL concepts including schema design, concurrency control, stored procedures, triggers, indexing strategies, query optimization, and scalable backend architecture.
             </p>
+
+            <!-- Deployment Badges Row -->
+            <div class="deploy-badge-row">
+                <span class="deploy-badge live"><span class="pulse-dot"></span> Live Demo</span>
+                <span class="deploy-badge pg">🐘 PostgreSQL (Neon)</span>
+                <span class="deploy-badge fa">⚡ FastAPI (Render)</span>
+                <span class="deploy-badge vc">▲ Frontend (Vercel)</span>
+                <span class="deploy-badge rows">📊 1.4M+ Records</span>
+                <span class="deploy-badge mit">📜 MIT License</span>
+            </div>
         </div>
 
         <!-- Purpose Card -->
@@ -331,142 +422,85 @@
             </div>
         </div>
 
+        <!-- Recruiter Quick Facts, Project Goals & Designed For Grid -->
+        <div class="about-grid-3">
+            <!-- Recruiter Quick Facts Card -->
+            <div class="card quick-facts-card">
+                <div class="card-header">
+                    <h3>⚡ Recruiter Quick Facts</h3>
+                </div>
+                <div class="card-body">
+                    <div class="quick-fact-row"><span>Database</span><strong>PostgreSQL 16</strong></div>
+                    <div class="quick-fact-row"><span>Tables</span><strong>8</strong></div>
+                    <div class="quick-fact-row"><span>Views</span><strong>4</strong></div>
+                    <div class="quick-fact-row"><span>Stored Procedures</span><strong>4</strong></div>
+                    <div class="quick-fact-row"><span>Triggers</span><strong>4</strong></div>
+                    <div class="quick-fact-row"><span>Indexes</span><strong>19</strong></div>
+                    <div class="quick-fact-row"><span>Materialized Views</span><strong>1</strong></div>
+                    <div class="quick-fact-row"><span>Dataset Volume</span><strong>1,400,509 rows</strong></div>
+                    <div class="quick-fact-row"><span>Architecture</span><strong>FastAPI + asyncpg</strong></div>
+                    <div class="quick-fact-row"><span>ORM</span><strong>None (Raw SQL)</strong></div>
+                </div>
+            </div>
+
+            <!-- Project Goals Card -->
+            <div class="card goals-card">
+                <div class="card-header">
+                    <h3>🎯 Project Goals</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="goals-list">
+                        <li><span class="goal-icon">🛡️</span> <div><strong>Demonstrate production-grade PostgreSQL engineering</strong> with clean 3NF schema design and strict constraints.</div></li>
+                        <li><span class="goal-icon">⚡</span> <div><strong>Showcase database performance optimization</strong> on large scale datasets (~1.4M rows) with live EXPLAIN ANALYZE.</div></li>
+                        <li><span class="goal-icon">🔒</span> <div><strong>Illustrate concurrency-safe transaction design</strong> using raw SQL, row-level FOR UPDATE locking, and triggers.</div></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Designed For Card -->
+            <div class="card audience-card">
+                <div class="card-header">
+                    <h3>👥 Designed For</h3>
+                </div>
+                <div class="card-body">
+                    <div class="audience-grid">
+                        <div class="audience-badge">💼 Recruiters</div>
+                        <div class="audience-badge">🗄️ Database Engineers</div>
+                        <div class="audience-badge">⚙️ Backend Engineers</div>
+                        <div class="audience-badge">💻 Engineering Interviews</div>
+                        <div class="audience-badge">🎓 DBMS Coursework</div>
+                        <div class="audience-badge">🐘 PostgreSQL Learners</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Skills Demonstrated -->
+        <div class="about-section-header">
+            <h2>✔ Database Skills Demonstrated</h2>
+            <p>Core competencies verified through live database execution and benchmarked query plans</p>
+        </div>
+        <div class="skills-grid">
+            <div class="skill-item">✔ Schema Design (3NF)</div>
+            <div class="skill-item">✔ Constraints & Integrity</div>
+            <div class="skill-item">✔ Index Design</div>
+            <div class="skill-item">✔ Query Optimization</div>
+            <div class="skill-item">✔ Stored Procedures</div>
+            <div class="skill-item">✔ Triggers</div>
+            <div class="skill-item">✔ Transactions</div>
+            <div class="skill-item">✔ Row-Level Locking</div>
+            <div class="skill-item">✔ Materialized Views</div>
+            <div class="skill-item">✔ Bulk Data Loading</div>
+            <div class="skill-item">✔ Connection Pooling</div>
+            <div class="skill-item">✔ EXPLAIN ANALYZE</div>
+            <div class="skill-item">✔ Benchmarking</div>
+            <div class="skill-item">✔ Async PostgreSQL</div>
+        </div>
+
         <!-- Scale Numbers Section -->
         <div class="about-section-header">
             <h2>⚡ Database Scale & Dataset Volume</h2>
             <p>Live synthetic dataset populated using PostgreSQL bulk <code>COPY FROM STDIN</code></p>
-        </div>
-        <div class="about-stats-grid">
-            <div class="about-stat-card">
-                <div class="stat-number">15</div>
-                <div class="stat-label">DEPARTMENTS</div>
-            </div>
-            <div class="about-stat-card">
-                <div class="stat-number">200</div>
-                <div class="stat-label">DOCTORS</div>
-            </div>
-            <div class="about-stat-card">
-                <div class="stat-number">1,00,000</div>
-                <div class="stat-label">PATIENTS</div>
-            </div>
-            <div class="about-stat-card">
-                <div class="stat-number">4,99,995</div>
-                <div class="stat-label">APPOINTMENTS</div>
-            </div>
-            <div class="about-stat-card">
-                <div class="stat-number">3,00,004</div>
-                <div class="stat-label">MEDICAL RECORDS</div>
-            </div>
-            <div class="about-stat-card">
-                <div class="stat-number">4,99,995</div>
-                <div class="stat-label">BILLING RECORDS</div>
-            </div>
-            <div class="about-stat-card highlight">
-                <div class="stat-number">1.4M+</div>
-                <div class="stat-label">TOTAL DATABASE ROWS</div>
-            </div>
-        </div>
-
-        <!-- Technologies Grid -->
-        <div class="about-section-header">
-            <h2>🛠️ Technology Stack</h2>
-            <p>Modern, decoupled architecture built for maximum raw performance</p>
-        </div>
-        <div class="tech-grid">
-            <div class="tech-card"><div class="tech-icon">🐘</div><div class="tech-name">PostgreSQL 16</div><div class="tech-desc">Core RDBMS Engine</div></div>
-            <div class="tech-card"><div class="tech-icon">⚡</div><div class="tech-name">FastAPI</div><div class="tech-desc">Async Python Framework</div></div>
-            <div class="tech-card"><div class="tech-icon">🐍</div><div class="tech-name">Python 3.11+</div><div class="tech-desc">Backend Runtime</div></div>
-            <div class="tech-card"><div class="tech-icon">🔌</div><div class="tech-name">asyncpg</div><div class="tech-desc">Async PostgreSQL Driver</div></div>
-            <div class="tech-card"><div class="tech-icon">📜</div><div class="tech-name">Raw SQL</div><div class="tech-desc">Zero ORM Overhead</div></div>
-            <div class="tech-card"><div class="tech-icon">💛</div><div class="tech-name">Vanilla JS</div><div class="tech-desc">ES6 JavaScript</div></div>
-            <div class="tech-card"><div class="tech-icon">🌐</div><div class="tech-name">HTML5</div><div class="tech-desc">Semantic Markup</div></div>
-            <div class="tech-card"><div class="tech-icon">🎨</div><div class="tech-name">CSS3</div><div class="tech-desc">Modern Design Tokens</div></div>
-            <div class="tech-card"><div class="tech-icon">🧜‍♂️</div><div class="tech-name">Mermaid.js</div><div class="tech-desc">Interactive ER Diagram</div></div>
-            <div class="tech-card"><div class="tech-icon">🎲</div><div class="tech-name">Faker</div><div class="tech-desc">Data Seeding Library</div></div>
-        </div>
-
-        <!-- Database Features Grid -->
-        <div class="about-section-header">
-            <h2>🏛️ PostgreSQL Database Engineering Features</h2>
-            <p>Advanced RDBMS features implemented directly in SQL DDL & PL/pgSQL</p>
-        </div>
-        <div class="feature-matrix">
-            <div class="feature-card">
-                <div class="feature-icon">📐</div>
-                <h4>Schema Design</h4>
-                <ul>
-                    <li>Third Normal Form (3NF)</li>
-                    <li>Foreign Key Cascade Constraints</li>
-                    <li>Strict CHECK Constraints</li>
-                    <li>UNIQUE Key Indexing</li>
-                    <li>NOT NULL Data Integrity</li>
-                </ul>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h4>Query Performance</h4>
-                <ul>
-                    <li>Composite B-Tree Indexes</li>
-                    <li>Partial Indexes (Filtered Scans)</li>
-                    <li>EXPLAIN ANALYZE Explorer</li>
-                    <li>Query Planner Optimization</li>
-                    <li>Materialized Views (Concurrent Refresh)</li>
-                </ul>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔒</div>
-                <h4>Concurrency Control</h4>
-                <ul>
-                    <li><code>SELECT ... FOR UPDATE</code> Row Locks</li>
-                    <li>Atomic Multi-Table Transactions</li>
-                    <li>Row-Level Bed Allocation Locks</li>
-                    <li>READ COMMITTED Isolation</li>
-                    <li>Race Condition Prevention</li>
-                </ul>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">⚙️</div>
-                <h4>Database Programming</h4>
-                <ul>
-                    <li>Stored PL/pgSQL Procedures</li>
-                    <li>Automated Database Triggers</li>
-                    <li>Analytical Reporting Views</li>
-                    <li>Materialized Statistics View</li>
-                    <li>Patient Audit Trail Logging</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Highlights & Design Philosophy -->
-        <div class="about-grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <h3>💡 Project Technical Highlights</h3>
-                </div>
-                <div class="card-body">
-                    <div class="highlights-list">
-                        <div class="highlight-item">⚡ <strong>Raw SQL (No ORM):</strong> Complete control over query optimization and transaction blocks.</div>
-                        <div class="highlight-item">🚀 <strong>High-Speed Bulk COPY:</strong> Generates 1.4M+ rows in seconds using binary COPY buffers.</div>
-                        <div class="highlight-item">🔄 <strong>Async Connection Pooling:</strong> High-concurrency asyncpg pool connection management.</div>
-                        <div class="highlight-item">📊 <strong>Live EXPLAIN ANALYZE:</strong> Interactive execution plan analysis directly in the browser UI.</div>
-                        <div class="highlight-item">📈 <strong>Query Performance Dashboard:</strong> Table sizes, index scan counters, and timing breakdowns.</div>
-                        <div class="highlight-item">🗂️ <strong>Interactive ER Diagram:</strong> Real-time Mermaid.js relational schema visualization.</div>
-                    </div>
-                </div>
-            </div>
-            <div class="card philosophy-card">
-                <div class="card-header">
-                    <h3>🎨 Design Philosophy — Why the Frontend is Minimal</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        The frontend intentionally remains lightweight and functional because the objective of this project is to showcase <strong>PostgreSQL database engineering</strong> rather than complex frontend frameworks.
-                    </p>
-                    <p>
-                        Every screen exists to expose core database concepts such as atomic transactions, analytical views, triggers, row locking concurrency, and query optimization.
-                    </p>
-                </div>
-            </div>
         </div>
 
         <!-- GitHub Callout Card -->
@@ -475,15 +509,6 @@
             <div class="github-content">
                 <h2>View Source Code on GitHub</h2>
                 <p><strong>Hospital DBMS Showcase</strong> is fully open source under the MIT License.</p>
-                <div class="github-explore-tags">
-                    <span>• Database Schema (3NF)</span>
-                    <span>• Stored PL/pgSQL Procedures</span>
-                    <span>• Triggers</span>
-                    <span>• Views & Materialized Views</span>
-                    <span>• FastAPI Backend</span>
-                    <span>• Data Generator</span>
-                    <span>• Documentation</span>
-                </div>
                 <a href="https://github.com/Vyom-Repo/hospital-dbms-showcase" target="_blank" class="btn btn-github-large">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
                     View Repository on GitHub
@@ -502,7 +527,7 @@
                     <div>Developed by <strong>Vyom Prajapati</strong></div>
                     <div class="footer-links">
                         <a href="https://github.com/Vyom-Repo" target="_blank">GitHub</a> •
-                        <a href="https://linkedin.com/in/vyomprajapati" target="_blank">LinkedIn</a> •
+                        <a href="https://www.linkedin.com/in/vyom-prajapati-25209936a/" target="_blank">LinkedIn</a> •
                         <a href="mailto:vyomprajapati149@gmail.com">Email</a>
                     </div>
                 </div>
