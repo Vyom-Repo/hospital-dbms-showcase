@@ -3,11 +3,22 @@ Rooms Route Handler
 Inpatient bed allocation and patient admission transactions.
 """
 
+from decimal import Decimal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.database import get_pool
 
 router = APIRouter(prefix="/api/rooms", tags=["Rooms"])
+
+
+def serialize_row(row):
+    if row is None:
+        return None
+    d = dict(row)
+    for k, v in d.items():
+        if isinstance(v, Decimal):
+            d[k] = float(v)
+    return d
 
 
 class RoomCreate(BaseModel):
@@ -65,7 +76,7 @@ async def list_rooms(
         {where_clause}
         ORDER BY r.room_number
     """, *params)
-    return [dict(r) for r in rows]
+    return [serialize_row(r) for r in rows]
 
 
 @router.post("")
@@ -73,13 +84,13 @@ async def create_room(room: RoomCreate):
     pool = get_pool()
     try:
         row = await pool.fetchrow("""
-            INSERT INTO rooms (room_number, department_id, room_type,
+            INSERT INTO hms.rooms (room_number, department_id, room_type,
                                total_beds, daily_rate)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING room_id, room_number, room_type, total_beds
         """, room.room_number, room.department_id, room.room_type,
             room.total_beds, room.daily_rate)
-        return dict(row)
+        return serialize_row(row)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -93,11 +104,11 @@ async def admit_patient(req: AdmitPatient):
     async with pool.acquire() as conn:
         async with conn.transaction(isolation="read_committed"):
             row = await conn.fetchrow("""
-                SELECT * FROM fn_admit_patient($1, $2, $3, $4, $5)
+                SELECT * FROM hms.fn_admit_patient($1, $2, $3, $4, $5)
             """, req.patient_id, req.room_id, req.doctor_id,
                 req.diagnosis, req.notes)
 
-            result = dict(row)
+            result = serialize_row(row)
             if result["appointment_id"] == -1:
                 raise HTTPException(status_code=409, detail=result["status_message"])
             return result
@@ -109,10 +120,10 @@ async def discharge_patient(req: DischargePatient):
     async with pool.acquire() as conn:
         async with conn.transaction():
             row = await conn.fetchrow("""
-                SELECT * FROM fn_discharge_patient($1, $2)
+                SELECT * FROM hms.fn_discharge_patient($1, $2)
             """, req.patient_id, req.room_id)
 
-            result = dict(row)
+            result = serialize_row(row)
             if "ERROR" in result["status_message"]:
                 raise HTTPException(status_code=409, detail=result["status_message"])
             return result
@@ -121,5 +132,5 @@ async def discharge_patient(req: DischargePatient):
 @router.get("/occupancy")
 async def room_occupancy():
     pool = get_pool()
-    rows = await pool.fetch("SELECT * FROM v_room_occupancy_dashboard")
-    return [dict(r) for r in rows]
+    rows = await pool.fetch("SELECT * FROM hms.v_room_occupancy_dashboard")
+    return [serialize_row(r) for r in rows]
