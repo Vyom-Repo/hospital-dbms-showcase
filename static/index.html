@@ -305,14 +305,13 @@
 
     <!-- ── About Showcase ──────────────────────────────────────────────── -->
     <section class="tab-panel" id="panel-about">
+    <!-- ── About Showcase ──────────────────────────────────────────────── -->
+    <section class="tab-panel" id="panel-about">
         <!-- Hero Section -->
-        <div class="about-hero">
+        <div class="about-hero glass-card">
             <div class="about-hero-badge">DATABASE ENGINEERING PORTFOLIO</div>
             <h1 class="about-title">Hospital DBMS Showcase</h1>
             <p class="about-subtitle">Advanced PostgreSQL Database Engineering Showcase</p>
-            <p class="about-description">
-                A production-inspired Hospital Management System built to demonstrate advanced PostgreSQL concepts including schema design, concurrency control, stored procedures, triggers, indexing strategies, query optimization, and scalable backend architecture.
-            </p>
 
             <!-- Deployment Badges Row -->
             <div class="deploy-badge-row">
@@ -325,154 +324,210 @@
             </div>
         </div>
 
-        <!-- Purpose & Recruiter Quick Facts Row -->
-        <div class="about-grid-2" style="margin-bottom: 24px;">
-            <!-- Purpose Card -->
-            <div class="card about-purpose-card" style="margin-bottom: 0;">
-                <div class="card-header">
-                    <h3>🎯 Purpose — Why This Project Exists</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        This application is not intended to be a complete Hospital ERP. Its primary objective is to demonstrate advanced <strong>Database Management System (DBMS)</strong> concepts using PostgreSQL while keeping the frontend intentionally lightweight.
-                    </p>
-                    <p>
-                        The user interface acts as a transparent window into the database, allowing visitors to explore how SQL, transactions, constraints, views, and backend logic work together seamlessly under high workload scenarios.
-                    </p>
-                </div>
+        <!-- Project Overview Cards -->
+        <div class="overview-grid">
+            <div class="overview-card">
+                <div class="overview-icon">🎯</div>
+                <h4>Goal</h4>
+                <p>Showcase production-grade PostgreSQL engineering with strict 3NF schema design and performance benchmarks.</p>
             </div>
-
-            <!-- Recruiter Quick Facts Card -->
-            <div class="card quick-facts-card">
-                <div class="card-header">
-                    <h3>⚡ Recruiter Quick Facts</h3>
-                </div>
-                <div class="card-body">
-                    <div class="quick-fact-row"><span>Database</span><strong>PostgreSQL 16</strong></div>
-                    <div class="quick-fact-row"><span>Tables</span><strong>8</strong></div>
-                    <div class="quick-fact-row"><span>Views</span><strong>4</strong></div>
-                    <div class="quick-fact-row"><span>Stored Procedures</span><strong>4</strong></div>
-                    <div class="quick-fact-row"><span>Triggers</span><strong>4</strong></div>
-                    <div class="quick-fact-row"><span>Indexes</span><strong>19</strong></div>
-                    <div class="quick-fact-row"><span>Materialized Views</span><strong>1</strong></div>
-                    <div class="quick-fact-row"><span>Dataset Volume</span><strong>1,400,509 rows</strong></div>
-                    <div class="quick-fact-row"><span>Architecture</span><strong>FastAPI + asyncpg</strong></div>
-                    <div class="quick-fact-row"><span>ORM</span><strong>None (Raw SQL)</strong></div>
-                </div>
+            <div class="overview-card">
+                <div class="overview-icon">⚡</div>
+                <h4>Focus</h4>
+                <p>Transparent database architecture, concurrency control, stored procedures, triggers, and query planning.</p>
+            </div>
+            <div class="overview-card">
+                <div class="overview-icon">🔒</div>
+                <h4>Scope</h4>
+                <p>Intentionally lightweight frontend acting as an interactive window into raw SQL database logic.</p>
             </div>
         </div>
 
-        <!-- Project Goals & Designed For Grid -->
-        <div class="about-grid-2" style="margin-bottom: 32px;">
-            <!-- Project Goals Card -->
-            <div class="card goals-card">
-                <div class="card-header">
-                    <h3>🎯 Project Goals</h3>
-                </div>
-                <div class="card-body">
-                    <ul class="goals-list">
-                        <li><span class="goal-icon">🛡️</span> <div><strong>Demonstrate production-grade PostgreSQL engineering</strong> with clean 3NF schema design and strict constraints.</div></li>
-                        <li><span class="goal-icon">⚡</span> <div><strong>Showcase database performance optimization</strong> on large scale datasets (~1.4M rows) with live EXPLAIN ANALYZE.</div></li>
-                        <li><span class="goal-icon">🔒</span> <div><strong>Illustrate concurrency-safe transaction design</strong> using raw SQL, row-level FOR UPDATE locking, and triggers.</div></li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Designed For Card -->
-            <div class="card audience-card">
-                <div class="card-header">
-                    <h3>👥 Designed For</h3>
-                </div>
-                <div class="card-body">
-                    <div class="audience-grid">
-                        <div class="audience-badge">💼 Recruiters</div>
-                        <div class="audience-badge">🗄️ Database Engineers</div>
-                        <div class="audience-badge">⚙️ Backend Engineers</div>
-                        <div class="audience-badge">💻 Engineering Interviews</div>
-                        <div class="audience-badge">🎓 DBMS Coursework</div>
-                        <div class="audience-badge">🐘 PostgreSQL Learners</div>
-                    </div>
-                </div>
-            </div>
+        <!-- Recruiter Dashboard Widgets Grid -->
+        <div class="about-section-header">
+            <h2>⚡ System Architecture & Schema Specs</h2>
+            <p>Core database metrics and specs for technical evaluation</p>
         </div>
-
-        <!-- Database Skills Demonstrated Section -->
-        <div class="card" style="margin-bottom: 36px;">
-            <div class="card-header">
-                <h3>✔ Database Skills Demonstrated</h3>
+        <div class="widgets-grid">
+            <div class="widget-card">
+                <div class="widget-title">Database Engine</div>
+                <div class="widget-value">PostgreSQL 16</div>
+                <div class="widget-sub">Neon Cloud Pooler</div>
             </div>
-            <div class="card-body">
-                <div class="skills-grid" style="margin-bottom: 0;">
-                    <div class="skill-item">✔ Schema Design (3NF)</div>
-                    <div class="skill-item">✔ Constraints & Integrity</div>
-                    <div class="skill-item">✔ Index Design</div>
-                    <div class="skill-item">✔ Query Optimization</div>
-                    <div class="skill-item">✔ Stored Procedures</div>
-                    <div class="skill-item">✔ Triggers</div>
-                    <div class="skill-item">✔ Transactions</div>
-                    <div class="skill-item">✔ Row-Level Locking</div>
-                    <div class="skill-item">✔ Materialized Views</div>
-                    <div class="skill-item">✔ Bulk Data Loading</div>
-                    <div class="skill-item">✔ Connection Pooling</div>
-                    <div class="skill-item">✔ EXPLAIN ANALYZE</div>
-                    <div class="skill-item">✔ Performance Benchmarking</div>
-                    <div class="skill-item">✔ Async PostgreSQL</div>
-                </div>
+            <div class="widget-card">
+                <div class="widget-title">Tables</div>
+                <div class="widget-value">8</div>
+                <div class="widget-sub">3NF Normalized</div>
+            </div>
+            <div class="widget-card">
+                <div class="widget-title">Views</div>
+                <div class="widget-value">4</div>
+                <div class="widget-sub">Analytical Aggregations</div>
+            </div>
+            <div class="widget-card">
+                <div class="widget-title">Stored Procedures</div>
+                <div class="widget-value">4</div>
+                <div class="widget-sub">PL/pgSQL Functions</div>
+            </div>
+            <div class="widget-card">
+                <div class="widget-title">Triggers</div>
+                <div class="widget-value">4</div>
+                <div class="widget-sub">Auto-Audit & Rules</div>
+            </div>
+            <div class="widget-card">
+                <div class="widget-title">Indexes</div>
+                <div class="widget-value">19</div>
+                <div class="widget-sub">Composite & Partial</div>
+            </div>
+            <div class="widget-card">
+                <div class="widget-title">Materialized Views</div>
+                <div class="widget-value">1</div>
+                <div class="widget-sub">Concurrent Refresh</div>
+            </div>
+            <div class="widget-card highlight">
+                <div class="widget-title">Dataset Volume</div>
+                <div class="widget-value">1,400,509</div>
+                <div class="widget-sub">Total Database Rows</div>
             </div>
         </div>
 
         <!-- Scale Numbers Section -->
         <div class="about-section-header">
-            <h2>⚡ Database Scale & Dataset Volume</h2>
-            <p>Live synthetic dataset populated using PostgreSQL bulk <code>COPY FROM STDIN</code></p>
+            <h2>📊 Database Scale & Dataset Volume</h2>
+            <p>Populated via high-speed binary COPY buffers</p>
         </div>
         <div class="about-stats-grid">
             <div class="about-stat-card">
-                <div class="stat-number">15</div>
-                <div class="stat-label">DEPARTMENTS</div>
+                <div class="stat-trend">⬆ Production Scale</div>
+                <div class="stat-number">1.4M+</div>
+                <div class="stat-label">DATABASE ROWS</div>
             </div>
             <div class="about-stat-card">
-                <div class="stat-number">200</div>
-                <div class="stat-label">DOCTORS</div>
-            </div>
-            <div class="about-stat-card">
-                <div class="stat-number">1,00,000</div>
-                <div class="stat-label">PATIENTS</div>
-            </div>
-            <div class="about-stat-card">
+                <div class="stat-trend">⚡ B-Tree Indexed</div>
                 <div class="stat-number">4,99,995</div>
                 <div class="stat-label">APPOINTMENTS</div>
             </div>
             <div class="about-stat-card">
+                <div class="stat-trend">🛡️ 3NF Normalized</div>
+                <div class="stat-number">1,00,000</div>
+                <div class="stat-label">PATIENTS</div>
+            </div>
+            <div class="about-stat-card">
+                <div class="stat-trend">💳 Trigger Status</div>
+                <div class="stat-number">4,99,995</div>
+                <div class="stat-label">BILLING RECORDS</div>
+            </div>
+            <div class="about-stat-card">
+                <div class="stat-trend">🔒 Audit Logged</div>
                 <div class="stat-number">3,00,004</div>
                 <div class="stat-label">MEDICAL RECORDS</div>
             </div>
             <div class="about-stat-card">
-                <div class="stat-number">4,99,995</div>
-                <div class="stat-label">BILLING RECORDS</div>
+                <div class="stat-trend">🩺 Active Consultants</div>
+                <div class="stat-number">200</div>
+                <div class="stat-label">DOCTORS</div>
             </div>
             <div class="about-stat-card highlight">
-                <div class="stat-number">1.4M+</div>
-                <div class="stat-label">TOTAL DATABASE ROWS</div>
+                <div class="stat-trend">📊 MV Aggregated</div>
+                <div class="stat-number">15</div>
+                <div class="stat-label">DEPARTMENTS</div>
+            </div>
+        </div>
+
+        <!-- Project Goals -->
+        <div class="about-section-header">
+            <h2>🎯 Project Goals</h2>
+            <p>Core engineering objectives driving the repository design</p>
+        </div>
+        <div class="goals-horizontal-container">
+            <div class="goal-horizontal-card">
+                <div class="goal-icon">🛡️</div>
+                <div class="goal-content">
+                    <h4>Production Database</h4>
+                    <p>Clean 3NF schema design, declarative constraints, and strict data integrity.</p>
+                </div>
+            </div>
+            <div class="goal-horizontal-card">
+                <div class="goal-icon">⚡</div>
+                <div class="goal-content">
+                    <h4>Performance</h4>
+                    <p>Composite B-Tree indexes, partial indexes, planner optimization, and live EXPLAIN ANALYZE.</p>
+                </div>
+            </div>
+            <div class="goal-horizontal-card">
+                <div class="goal-icon">🔒</div>
+                <div class="goal-content">
+                    <h4>Concurrency</h4>
+                    <p>Row-level FOR UPDATE locking, atomic multi-table transactions, and database triggers.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Designed For -->
+        <div class="about-section-header">
+            <h2>👥 Designed For</h2>
+            <p>Tailored for technical evaluation and database learning</p>
+        </div>
+        <div class="audience-cards-grid">
+            <div class="audience-card-v2">
+                <div class="audience-icon">💼</div>
+                <h4>Recruiters</h4>
+                <p>Evaluate backend & database engineering technical depth in under 30 seconds.</p>
+            </div>
+            <div class="audience-card-v2">
+                <div class="audience-icon">⚙️</div>
+                <h4>Backend Engineers</h4>
+                <p>Study async connection pool management and zero-ORM raw SQL pipeline design.</p>
+            </div>
+            <div class="audience-card-v2">
+                <div class="audience-icon">🐘</div>
+                <h4>Database Engineers</h4>
+                <p>Inspect advanced PL/pgSQL procedures, triggers, materialized views, and row locks.</p>
             </div>
         </div>
 
         <!-- Technologies Grid -->
         <div class="about-section-header">
-            <h2>🛠️ Technology Stack</h2>
-            <p>Modern, decoupled architecture built for maximum raw performance</p>
+            <h2>🛠️ Tech Stack & Framework Architecture</h2>
+            <p>Zero-ORM async pipeline for maximum throughput</p>
         </div>
         <div class="tech-grid">
-            <div class="tech-card"><div class="tech-icon">🐘</div><div class="tech-name">PostgreSQL 16</div><div class="tech-desc">Core RDBMS Engine</div></div>
-            <div class="tech-card"><div class="tech-icon">⚡</div><div class="tech-name">FastAPI</div><div class="tech-desc">Async Python Framework</div></div>
-            <div class="tech-card"><div class="tech-icon">🐍</div><div class="tech-name">Python 3.11+</div><div class="tech-desc">Backend Runtime</div></div>
-            <div class="tech-card"><div class="tech-icon">🔌</div><div class="tech-name">asyncpg</div><div class="tech-desc">Async PostgreSQL Driver</div></div>
-            <div class="tech-card"><div class="tech-icon">📜</div><div class="tech-name">Raw SQL</div><div class="tech-desc">Zero ORM Overhead</div></div>
-            <div class="tech-card"><div class="tech-icon">💛</div><div class="tech-name">Vanilla JS</div><div class="tech-desc">ES6 JavaScript</div></div>
-            <div class="tech-card"><div class="tech-icon">🌐</div><div class="tech-name">HTML5</div><div class="tech-desc">Semantic Markup</div></div>
-            <div class="tech-card"><div class="tech-icon">🎨</div><div class="tech-name">CSS3</div><div class="tech-desc">Modern Design Tokens</div></div>
-            <div class="tech-card"><div class="tech-icon">🧜‍♂️</div><div class="tech-name">Mermaid.js</div><div class="tech-desc">Interactive ER Diagram</div></div>
-            <div class="tech-card"><div class="tech-icon">🎲</div><div class="tech-name">Faker</div><div class="tech-desc">Data Seeding Library</div></div>
+            <div class="tech-card">
+                <div class="tech-icon">🐘</div>
+                <div class="tech-name">PostgreSQL 16</div>
+                <div class="tech-desc">Core RDBMS Engine</div>
+                <div class="tech-chips"><span>3NF</span><span>Views</span><span>Indexes</span><span>Triggers</span><span>Functions</span></div>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon">⚡</div>
+                <div class="tech-name">FastAPI</div>
+                <div class="tech-desc">Async Python Framework</div>
+                <div class="tech-chips"><span>Async</span><span>REST API</span><span>Python 3.11+</span><span>Lifespan Pool</span></div>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon">🔌</div>
+                <div class="tech-name">asyncpg</div>
+                <div class="tech-desc">Async PostgreSQL Driver</div>
+                <div class="tech-chips"><span>Binary COPY</span><span>Pool</span><span>High Speed</span></div>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon">📜</div>
+                <div class="tech-name">Raw SQL</div>
+                <div class="tech-desc">Zero ORM Overhead</div>
+                <div class="tech-chips"><span>No ORM</span><span>EXPLAIN ANALYZE</span><span>Custom SQL</span></div>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon">💛</div>
+                <div class="tech-name">Vanilla JS</div>
+                <div class="tech-desc">ES6 Client Engine</div>
+                <div class="tech-chips"><span>SPA</span><span>ES6</span><span>No Framework</span></div>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon">🧜‍♂️</div>
+                <div class="tech-name">Mermaid.js</div>
+                <div class="tech-desc">ERD Diagram Engine</div>
+                <div class="tech-chips"><span>Dynamic ERD</span><span>Relational Schema</span></div>
+            </div>
         </div>
 
         <!-- Database Features Grid -->
@@ -482,97 +537,88 @@
         </div>
         <div class="feature-matrix">
             <div class="feature-card">
-                <div class="feature-icon">📐</div>
-                <h4>Schema Design</h4>
-                <ul>
-                    <li>Third Normal Form (3NF)</li>
-                    <li>Foreign Key Cascade Constraints</li>
-                    <li>Strict CHECK Constraints</li>
-                    <li>UNIQUE Key Indexing</li>
-                    <li>NOT NULL Data Integrity</li>
-                </ul>
+                <div class="feature-icon">🔒</div>
+                <h4>Concurrency Control</h4>
+                <p class="feature-sub">Row-level locking and atomic multi-table transaction isolation</p>
+                <div class="feature-chips">
+                    <span class="chip">SELECT FOR UPDATE</span>
+                    <span class="chip">Transactions</span>
+                    <span class="chip">Atomic</span>
+                    <span class="chip">Isolation</span>
+                </div>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">⚡</div>
                 <h4>Query Performance</h4>
-                <ul>
-                    <li>Composite B-Tree Indexes</li>
-                    <li>Partial Indexes (Filtered Scans)</li>
-                    <li>EXPLAIN ANALYZE Explorer</li>
-                    <li>Query Planner Optimization</li>
-                    <li>Materialized Views (Concurrent Refresh)</li>
-                </ul>
+                <p class="feature-sub">Index optimization strategies and live execution plan inspection</p>
+                <div class="feature-chips">
+                    <span class="chip">EXPLAIN ANALYZE</span>
+                    <span class="chip">Composite B-Tree</span>
+                    <span class="chip">Partial Index</span>
+                    <span class="chip">Materialized Views</span>
+                </div>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">🔒</div>
-                <h4>Concurrency Control</h4>
-                <ul>
-                    <li><code>SELECT ... FOR UPDATE</code> Row Locks</li>
-                    <li>Atomic Multi-Table Transactions</li>
-                    <li>Row-Level Bed Allocation Locks</li>
-                    <li>READ COMMITTED Isolation</li>
-                    <li>Race Condition Prevention</li>
-                </ul>
+                <div class="feature-icon">📐</div>
+                <h4>Schema Design</h4>
+                <p class="feature-sub">Strict Third Normal Form schema with declarative referential integrity</p>
+                <div class="feature-chips">
+                    <span class="chip">3NF Schema</span>
+                    <span class="chip">Foreign Keys</span>
+                    <span class="chip">CHECK Constraints</span>
+                    <span class="chip">UNIQUE Keys</span>
+                </div>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">⚙️</div>
                 <h4>Database Programming</h4>
-                <ul>
-                    <li>Stored PL/pgSQL Procedures</li>
-                    <li>Automated Database Triggers</li>
-                    <li>Analytical Reporting Views</li>
-                    <li>Materialized Statistics View</li>
-                    <li>Patient Audit Trail Logging</li>
-                </ul>
+                <p class="feature-sub">Automated database logic executed directly inside the SQL engine</p>
+                <div class="feature-chips">
+                    <span class="chip">Stored Procedures</span>
+                    <span class="chip">Triggers</span>
+                    <span class="chip">Audit Logs</span>
+                    <span class="chip">PL/pgSQL</span>
+                </div>
             </div>
         </div>
 
-        <!-- Highlights & Design Philosophy -->
-        <div class="about-grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <h3>💡 Project Technical Highlights</h3>
-                </div>
-                <div class="card-body">
-                    <div class="highlights-list">
-                        <div class="highlight-item">⚡ <strong>Raw SQL (No ORM):</strong> Complete control over query optimization and transaction blocks.</div>
-                        <div class="highlight-item">🚀 <strong>High-Speed Bulk COPY:</strong> Generates 1.4M+ rows in seconds using binary COPY buffers.</div>
-                        <div class="highlight-item">🔄 <strong>Async Connection Pooling:</strong> High-concurrency asyncpg pool connection management.</div>
-                        <div class="highlight-item">📊 <strong>Live EXPLAIN ANALYZE:</strong> Interactive execution plan analysis directly in the browser UI.</div>
-                        <div class="highlight-item">📈 <strong>Query Performance Dashboard:</strong> Table sizes, index scan counters, and timing breakdowns.</div>
-                        <div class="highlight-item">🗂️ <strong>Interactive ER Diagram:</strong> Real-time Mermaid.js relational schema visualization.</div>
-                    </div>
-                </div>
-            </div>
-            <div class="card philosophy-card">
-                <div class="card-header">
-                    <h3>🎨 Design Philosophy — Why the Frontend is Minimal</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        The frontend intentionally remains lightweight and functional because the objective of this project is to showcase <strong>PostgreSQL database engineering</strong> rather than complex frontend frameworks.
-                    </p>
-                    <p>
-                        Every screen exists to expose core database concepts such as atomic transactions, analytical views, triggers, row locking concurrency, and query optimization.
-                    </p>
-                </div>
-            </div>
+        <!-- Database Skills Demonstrated -->
+        <div class="about-section-header">
+            <h2>✔ Database Skills Demonstrated</h2>
+            <p>Core competencies verified through live query execution and benchmarked query plans</p>
+        </div>
+        <div class="skills-topics-container">
+            <span class="topic-pill">Schema Design (3NF)</span>
+            <span class="topic-pill">Referential Integrity</span>
+            <span class="topic-pill">CHECK Constraints</span>
+            <span class="topic-pill">Composite B-Tree Indexing</span>
+            <span class="topic-pill">Partial Indexing</span>
+            <span class="topic-pill">EXPLAIN ANALYZE</span>
+            <span class="topic-pill">Query Optimization</span>
+            <span class="topic-pill">Stored Procedures (PL/pgSQL)</span>
+            <span class="topic-pill">Automated Triggers</span>
+            <span class="topic-pill">Atomic Transactions</span>
+            <span class="topic-pill">FOR UPDATE Row Locking</span>
+            <span class="topic-pill">Materialized Views</span>
+            <span class="topic-pill">Bulk Data Loading</span>
+            <span class="topic-pill">Connection Pooling</span>
+            <span class="topic-pill">Async PostgreSQL</span>
         </div>
 
         <!-- GitHub Callout Card -->
-        <div class="github-showcase-card">
+        <div class="github-showcase-card vercel-style">
             <div class="github-icon-large">🐙</div>
             <div class="github-content">
-                <h2>View Source Code on GitHub</h2>
-                <p><strong>Hospital DBMS Showcase</strong> is fully open source under the MIT License.</p>
+                <div class="repo-badge-tag">v1.0.0 • Public Release</div>
+                <h2>Hospital DBMS Showcase</h2>
+                <p>Production-inspired Hospital Management System demonstrating advanced PostgreSQL engineering.</p>
                 <div class="github-explore-tags">
-                    <span>• Database Schema (3NF)</span>
-                    <span>• Stored PL/pgSQL Procedures</span>
-                    <span>• Triggers</span>
-                    <span>• Views & Materialized Views</span>
-                    <span>• FastAPI Backend</span>
-                    <span>• Data Generator</span>
-                    <span>• Documentation</span>
+                    <span>PostgreSQL 16</span>
+                    <span>FastAPI</span>
+                    <span>Raw SQL</span>
+                    <span>3NF Schema</span>
+                    <span>asyncpg</span>
+                    <span>MIT License</span>
                 </div>
                 <a href="https://github.com/Vyom-Repo/hospital-dbms-showcase" target="_blank" class="btn btn-github-large">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
